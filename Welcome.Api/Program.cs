@@ -1,3 +1,4 @@
+using Welcome.Api.Hubs;
 using Welcome.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,12 +25,18 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
     options.RoutePrefix = string.Empty;
 });
-
-
 app.UseDeveloperExceptionPage();
 
+app.UseCors(b => b.SetIsOriginAllowed(origin => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<ChatHub>("/chatHub");
+});
 
 app.Run();
