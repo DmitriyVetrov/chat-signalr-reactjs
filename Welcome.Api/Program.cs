@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Welcome.Api.Hubs;
 using Welcome.Api.Models;
 
@@ -19,13 +20,16 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue("EnableSwagger", false)) 
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    options.RoutePrefix = string.Empty;
-});
-app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = string.Empty;
+    });
+    app.UseDeveloperExceptionPage();
+}
 
 app.UseCors(b => b.SetIsOriginAllowed(origin => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
