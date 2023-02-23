@@ -225,16 +225,7 @@ const App = () => {
             cleanUnreadMessageCounter={cleanUnreadDirectMessagesCounters}></Chat>
         </ApplicationContext.Provider>
       )}
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={
-          signedInUser === undefined && process.env.NODE_ENV === 'production'
-          // && connection !== undefined
-        }>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      {signedInUser === undefined && process.env.NODE_ENV === 'development' && (
-        // && connection !== undefined
+      {signedInUser === undefined && (
         <Box>
           <Typography variant="h4" align="center" sx={{ padding: '20px' }}>
             Chat Entrance
