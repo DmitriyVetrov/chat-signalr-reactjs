@@ -10,23 +10,20 @@ namespace Welcome.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class LoginController : ControllerBase
+    public class LoginController : Controller
     {
-        private IConfiguration _config;
+        private IConfiguration _configuration { get; }
 
-
-        public LoginController(IConfiguration config)
+        public LoginController(IConfiguration configuration)
         {
-            _config = config;
+            _configuration = configuration;
         }
 
         [AllowAnonymous]
         [HttpPost]
         public IActionResult Login([FromBody] LoginModel login)
         {
-            var user = Authenticate(login);
-
-            if (user != null)
+            if (Authenticate(login))
             {
                 var token = Generate(login);
                 return Ok(new { Token = token });
@@ -37,7 +34,7 @@ namespace Welcome.Api.Controllers
 
         private string Generate(LoginModel login)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -45,11 +42,13 @@ namespace Welcome.Api.Controllers
                 new Claim(ClaimTypes.NameIdentifier, login.MemberId),
                 new Claim(ClaimTypes.Name, login.UserName),
                 new Claim(ClaimTypes.UserData, login.ProviderId),
-                new Claim(ClaimTypes.Thumbprint, login.AvatarImage ?? "")
+                new Claim(ClaimTypes.Thumbprint, login.AvatarImage ?? ""),
+                new Claim(ClaimTypes.MobilePhone, login.Phone ?? ""),
+                new Claim(ClaimTypes.Email, login.Email ?? "")
             };
 
-            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-              _config["Jwt:Audience"],
+            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
+              _configuration["Jwt:Audience"],
               claims,
               expires: DateTime.Now.AddMinutes(15),
               signingCredentials: credentials);
@@ -57,17 +56,11 @@ namespace Welcome.Api.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private AgentInfo Authenticate(LoginModel login)
+        private bool Authenticate(LoginModel login)
         {
-            return new AgentInfo { ProviderId = login.ProviderId, Id = login.MemberId, FullName = login.UserName };
-            //var currentUser = UserConstants.Users.FirstOrDefault(o => o.UserName.ToLower() == login.UserName.ToLower());
+            //var token = ChatLoginVerification.GetValue(login.Token);
 
-            //if (currentUser != null)
-            //{
-            //    return currentUser;
-            //}
-
-            //return null;
+            return true;// token != null && token.IsValid() || token.SmartKey == "DebugKeyValue";
         }
     }
 }

@@ -1,24 +1,13 @@
 ﻿using Welcome.Api.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System.Security.Claims;
 
 namespace Welcome.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : Controller
     {
-        [HttpGet("Admins")]
-        [Authorize]
-        public IActionResult AdminsEndpoint()
-        {
-            var currentUser = GetCurrentUser();
-
-            return Ok($"Hi {currentUser.FullName}, you are an {currentUser.Id}");
-        }
-
         [HttpPost("Check")]
         public IActionResult CheckEmail([FromBody] CheckModel model)
         {
@@ -30,28 +19,24 @@ namespace Welcome.Api.Controllers
             return Ok(new { Found = false });
         }
 
-        private AgentInfo GetCurrentUser()
+        private AgentInfo? GetCurrentUser()
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (HttpContext.User.Identity is not ClaimsIdentity identity) return null;
 
-            if (identity != null)
+            var userClaims = identity.Claims.ToArray();
+
+            return new AgentInfo
             {
-                var userClaims = identity.Claims;
-
-                return new AgentInfo
-                {
-                    Id = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
-                    ProviderId = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.UserData)?.Value,
-                    FullName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Name)?.Value
-                };
-            }
-            return null;
+                Id = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                ProviderId = long.TryParse(userClaims.FirstOrDefault(o => o.Type == ClaimTypes.UserData)?.Value, out long parsedId) ? parsedId : 0,
+                FullName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Name)?.Value
+            };
         }
     }
 
     public class CheckModel
     {
-        public string Email { get; set; }
+        public string? Email { get; set; }
     }
 
 }
