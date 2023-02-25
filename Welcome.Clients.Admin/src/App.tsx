@@ -13,6 +13,10 @@ import { postData, browserName } from './Utils';
 import { ApplicationContext } from './Contexts';
 import { useSnackbar } from 'notistack';
 import { ConnectionClosedNotificationMessage } from './Components/NotificationBarMessages';
+import { Route, Routes } from 'react-router-dom';
+import { Home } from './Components/Pages/Home';
+import { About } from './Components/Pages/About';
+import { Parser } from './Components/Pages/Parser';
 
 const webApiUrl: string = (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_WEBAPI_DEV : process.env.REACT_APP_WEBAPI_PROD) as string;
 
@@ -201,39 +205,53 @@ const App = () => {
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <ConnectionClosedNotificationMessage state={connectionState}></ConnectionClosedNotificationMessage>
-      {signedInUser !== undefined && (
-        <ApplicationContext.Provider
-          value={{
-            signedInUser,
-            agents,
-            selectedAgent,
-            setSelectedAgent,
-            rooms,
-            selectedRoom,
-            setSelectedRoom,
-            rightSideBarOpen,
-            setRightSideBarOpen,
-          }}>
-          <Chat
-            messages={messages}
-            directMessages={directMessages}
-            sendMessageToRoom={sendMessageToRoom}
-            sendDirectMessage={sendDirectMessage}
-            closeRoom={closeRoom}
-            cleanUnreadMessageCounter={cleanUnreadDirectMessagesCounters}></Chat>
-        </ApplicationContext.Provider>
-      )}
-      {signedInUser === undefined && (
-        <Box>
-          <Typography variant="h4" align="center" sx={{ padding: '20px' }}>
-            Chat Entrance
-          </Typography>
-          <Lobby signInAgent={signInAgent}></Lobby>
-        </Box>
-      )}
-    </ThemeProvider>
+    <div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/Parser" element={<Parser />} />
+        <Route
+          path="/Chat"
+          element={
+            <>
+              <ThemeProvider theme={theme}>
+                <ConnectionClosedNotificationMessage state={connectionState}></ConnectionClosedNotificationMessage>
+                {signedInUser !== undefined && (
+                  <ApplicationContext.Provider
+                    value={{
+                      signedInUser,
+                      agents,
+                      selectedAgent,
+                      setSelectedAgent,
+                      rooms,
+                      selectedRoom,
+                      setSelectedRoom,
+                      rightSideBarOpen,
+                      setRightSideBarOpen,
+                    }}>
+                    <Chat
+                      messages={messages}
+                      directMessages={directMessages}
+                      sendMessageToRoom={sendMessageToRoom}
+                      sendDirectMessage={sendDirectMessage}
+                      closeRoom={closeRoom}
+                      cleanUnreadMessageCounter={cleanUnreadDirectMessagesCounters}></Chat>
+                  </ApplicationContext.Provider>
+                )}
+                {signedInUser === undefined && (
+                  <Box>
+                    <Typography variant="h4" align="center" sx={{ padding: '20px' }}>
+                      Chat Entrance
+                    </Typography>
+                    <Lobby signInAgent={signInAgent}></Lobby>
+                  </Box>
+                )}
+              </ThemeProvider>
+            </>
+          }
+        />
+      </Routes>
+    </div>
   );
 };
 
