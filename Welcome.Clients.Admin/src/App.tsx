@@ -17,6 +17,8 @@ import { Route, Routes } from 'react-router-dom';
 import { Home } from './Components/Pages/Home';
 import { About } from './Components/Pages/About';
 import { Parser } from './Components/Pages/Parser';
+import { Error404 } from './Components/Pages/Error404';
+import ApplicationBar from './Components/ApplicationBar';
 
 const webApiUrl: string = (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_WEBAPI_DEV : process.env.REACT_APP_WEBAPI_PROD) as string;
 
@@ -206,6 +208,7 @@ const App = () => {
 
   return (
     <div>
+      <ApplicationBar></ApplicationBar>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -250,6 +253,7 @@ const App = () => {
             </>
           }
         />
+        <Route path="*" element={<Error404 />} />
       </Routes>
     </div>
   );
