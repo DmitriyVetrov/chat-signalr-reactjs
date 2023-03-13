@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Welcome.Api.Hubs;
@@ -9,8 +8,6 @@ using Welcome.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddSingleton<IDictionary<string, AgentInfo>>(opt => new Dictionary<string, AgentInfo>());
 builder.Services.AddSingleton<IDictionary<string, CustomerInfo>>(opt => new Dictionary<string, CustomerInfo>());
 builder.Services.AddSingleton<IDictionary<string, List<UserConnection>>>(opt => new Dictionary<string, List<UserConnection>>());
@@ -18,16 +15,13 @@ builder.Services.AddSingleton<IDictionary<string, List<UserConnection>>>(opt => 
 builder.Services.AddCors();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
-        //options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            //NameClaimType = "id",
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
