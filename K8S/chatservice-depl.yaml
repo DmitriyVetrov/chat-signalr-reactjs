@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatservice-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatservice
+  template:
+    metadata:
+      labels:
+        app: chatservice
+    spec:
+      containers:
+        - name: chatservice
+          image: dvietrov/chatservice:latest
